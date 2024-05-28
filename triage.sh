@@ -14,7 +14,7 @@ apt install binutils -y >/dev/null 2>&1
 apt install parallel -y >/dev/null 2>&1
 apt install curl -y >/dev/null 2>&1
 apt install rkhunter -y >/dev/null 2>&1
-rkhunter --update 2>/dev/null
+rkhunter --update > /dev/null
 
 # Nombre del archivo de salida
 output_file="triage_$(hostname)_$(cat /etc/machine-id)_$(date +"%Y-%m-%d_%H-%M-%S").txt"
