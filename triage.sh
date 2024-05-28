@@ -14,7 +14,7 @@ apt install binutils -y >/dev/null 2>&1
 apt install parallel -y >/dev/null 2>&1
 apt install curl -y >/dev/null 2>&1
 apt install rkhunter -y >/dev/null 2>&1
-rkhunter --update
+rkhunter --update 2>/dev/null
 
 # Nombre del archivo de salida
 output_file="triage_$(hostname)_$(cat /etc/machine-id)_$(date +"%Y-%m-%d_%H-%M-%S").txt"
@@ -59,7 +59,7 @@ print_red "###############################################     " >> "$output_fil
 print_yellow "---- Ultimas conexiones realizadas ----">> "$output_file"
 last -Faixw >> "$output_file" 2>/dev/null
 print_yellow "---- Registro de autenticacion SSH ----">> "$output_file"
-tail -n 10 /var/log/auth.log | grep ssh >> "$output_file" 2>/dev/null
+tail -n 10 /var/log/auth.log 2>/dev/null | grep ssh >> "$output_file" 2>/dev/null
 print_yellow "---- Conexiones TCP y UDP entrantes/establecidas----">> "$output_file"
 netstat -putona >> "$output_file" 2>/dev/null
 print_yellow "---- Conexiones TCP ----" >> "$output_file"
