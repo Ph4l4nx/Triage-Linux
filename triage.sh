@@ -5,6 +5,8 @@ if [ "$EUID" -ne 0 ]; then
     echo "Este script necesita ser ejecutado con sudo."
 fi
 
+echo "Haciendo un triage de la maquina... espere unos minutos"
+echo "Instalando librerias y herramientas..."
 # Instalacion de herramientas en caso de que no esten instaladas en el sistema operativo
 apt install net-tools -y >/dev/null 2>&1
 apt install nmap -y >/dev/null 2>&1
@@ -26,6 +28,7 @@ print_yellow() {
 }
 
 # Información del sistema
+echo "Adquiriendo informacion de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####      Informacion del sistema          ####     " >> "$output_file"
@@ -47,6 +50,7 @@ print_yellow "Variables de entorno:" >> "$output_file"
 { env; echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
 # Conexiones
+echo "Adquiriendo conexiones de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####             Conexiones                ####     " >> "$output_file"
@@ -68,6 +72,7 @@ print_yellow "---- Usuarios conectados al sistema ----" >> "$output_file"
 { who; echo -e "\n\n"; } >> "$output_file" 2>/dev/null 
 
 # Comandos para procesos actualmente corriendo
+echo "Adquiriendo procesos de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####             Procesos                  ####     " >> "$output_file"
@@ -83,6 +88,7 @@ print_yellow "---- Recursos del sistema y procesos en ejecucion ----" >> "$outpu
 { top -n 1 -b; echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
 # Comandos para listar servicios instalados y corriendo
+echo "Adquiriendo servicios de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####             Servicios                 ####     " >> "$output_file"
@@ -94,6 +100,7 @@ print_yellow "---- Contexto de los servicios por cada usuario ----" >> "$output_
 { systemctl list-units --type=service --state=running --no-legend | awk '{print $1}' | while read -r service; do echo -n "$service: "; ps -p $(systemctl show -p MainPID $service --value) -o user= ; done;echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
 # Ficheros 
+echo "Checkeando ficheros de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####      Ficheros del sistema             ####     " >> "$output_file"
@@ -116,6 +123,7 @@ print_yellow "Configuracion de inmutabilidad en ficheros importantes:" >> "$outp
 
 
 # Volumenes montados y USB's
+echo "Volumenes y USBs en la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####           Volumenes y USB's           ####     " >> "$output_file"
@@ -127,6 +135,7 @@ print_yellow "USBs:" >> "$output_file"
 { ls -l /dev/disk/by-id | grep usb | awk '{print $6, $7, $8, $9}' | sed 's/usb-/usb-/g'; echo -e "\n\n";} >> "$output_file" 2>/dev/null
 
 # Persistencia
+echo "Checkeando persistencia en la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####            Persistencia               ####     " >> "$output_file"
@@ -145,6 +154,7 @@ print_yellow "---- Tareas programadas periodicas ----" >> "$output_file"
 { cat anacrontab; echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
 # Configuraciones
+echo "Adquiriendo configuracion de la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####      Configuracion de la maquina      ####     " >> "$output_file"
@@ -161,6 +171,7 @@ ls -lah /tmp >> "$output_file" 2>/dev/null
 print_yellow "---- Paquetes instalados ----" >> "$output_file"
 { dpkg -l; echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
+echo "Adquiriendo posible carga dinamica de modulos en la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####        Carga dinamica de modulos      ####     " >> "$output_file"
@@ -173,6 +184,7 @@ find / -type f -name '*.so*' -exec objdump -s -j .rodata {} + 2>/dev/null | grep
 print_yellow "---- Carga de modulos de kernel ----" >> "$output_file"
 { lsmod; echo -e "\n\n"; } >> "$output_file" 2>/dev/null
 
+echo "Adquiriendo archivos y accesos recientes en la maquina..."
 print_red "###############################################     " >> "$output_file"
 print_red "####                                       ####     " >> "$output_file"
 print_red "####      Archivos y accesos recientes     ####     " >> "$output_file"
@@ -183,6 +195,7 @@ find / -type f -atime -1 -printf "%TY-%Tm-%Td %TH:%TM:%.2TS %p\n" 2>/dev/null | 
 print_yellow "---- 30 ultimos ficheros creados en el sistema operativo ----" >> "$output_file"
 find / -path '/run/user/1000/gvfs' -prune -o -path '/run/user/1000/doc' -prune -o -type f -perm -0001 -printf '%T@ %p\n' 2>/dev/null | sort -n -k 1 | head -n 30 | cut -d' ' -f 2- >> "$output_file" 2>/dev/null
 
+echo "Checkeando repositorios de actualizacion en la maquina..."
 print_red "######################################################################     " >> "$output_file"
 print_red "####                                                              ####     " >> "$output_file"
 print_red "####    Posible compromosiso de repositorios de actualizacion     ####     " >> "$output_file"
@@ -237,6 +250,7 @@ else
     exit 1
 fi
 
+echo "Checkeando rootkits en la maquina..."
 print_red "######################################################################     " >> "$output_file"
 print_red "####                                                              ####     " >> "$output_file"
 print_red "####                      Posible rootkits                        ####     " >> "$output_file"
