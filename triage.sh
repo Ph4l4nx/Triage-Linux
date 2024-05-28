@@ -256,7 +256,7 @@ print_red "####                                                              ###
 print_red "####                      Posible rootkits                        ####     " >> "$output_file"
 print_red "####                                                              ####     " >> "$output_file"
 print_red "######################################################################     " >> "$output_file"
-yes '' | sudo rkhunter --check | grep -E '(Warning| Suspicious)' >> "$output_file" 2>/dev/null
+yes '' | sudo rkhunter --check  >> "$output_file" 2>/dev/null
 
 # Mensaje de confirmación
 echo "Salida guardada en $output_file"
