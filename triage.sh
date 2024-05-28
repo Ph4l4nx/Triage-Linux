@@ -11,6 +11,8 @@ apt install nmap -y >/dev/null 2>&1
 apt install binutils -y >/dev/null 2>&1
 apt install parallel -y >/dev/null 2>&1
 apt install curl -y >/dev/null 2>&1
+apt install rkhunter -y >/dev/null 2>&1
+rkhunter --update
 
 # Nombre del archivo de salida
 output_file="triage_$(hostname)_$(cat /etc/machine-id)_$(date +"%Y-%m-%d_%H-%M-%S").txt"
@@ -234,6 +236,13 @@ else
     echo "No se pudo determinar el sistema operativo"
     exit 1
 fi
+
+print_red "######################################################################     " >> "$output_file"
+print_red "####                                                              ####     " >> "$output_file"
+print_red "####                      Posible rootkits                        ####     " >> "$output_file"
+print_red "####                                                              ####     " >> "$output_file"
+print_red "######################################################################     " >> "$output_file"
+yes '' | sudo rkhunter --check | grep -E '(Warning| Suspicious)' >> "$output_file" 2>/dev/null
 
 # Mensaje de confirmación
 echo "Salida guardada en $output_file"
